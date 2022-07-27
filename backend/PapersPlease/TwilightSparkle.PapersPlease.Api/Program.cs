@@ -31,7 +31,6 @@ namespace TwilightSparkle.PapersPlease.Api
                     Log.Logger = new LoggerConfiguration()
                         .Enrich.FromLogContext()
                         .Enrich.WithMachineName()
-                        .WriteTo.Console()
                         .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
                         {
                             AutoRegisterTemplate = true,
@@ -46,8 +45,8 @@ namespace TwilightSparkle.PapersPlease.Api
                     builder.ClearProviders();
                     builder.AddConfiguration(hostContext.Configuration.GetSection("Logging"));
                     builder.AddConsole();
+                    builder.AddSerilog();
                 })
-                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
     }
 }
