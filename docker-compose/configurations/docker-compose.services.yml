@@ -32,6 +32,8 @@ services:
     cap_drop: ["ALL"]
     depends_on:
       - elasticsearch
+    volumes:
+      - ./apm-server.yml:/usr/share/apm-server/apm-server.yml:ro  
     ports:
       - 8200:8200
     networks:
