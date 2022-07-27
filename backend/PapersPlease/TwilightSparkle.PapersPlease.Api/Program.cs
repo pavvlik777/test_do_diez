@@ -1,7 +1,10 @@
+using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Sinks.Elasticsearch;
 
 namespace TwilightSparkle.PapersPlease.Api
 {
@@ -24,6 +27,19 @@ namespace TwilightSparkle.PapersPlease.Api
                     configuration
                         .AddJsonFile("appsettings.json", false, true)
                         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
+
+                    Log.Logger = new LoggerConfiguration()
+                        .Enrich.FromLogContext()
+                        .Enrich.WithMachineName()
+                        .WriteTo.Console()
+                        .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+                        {
+                            AutoRegisterTemplate = true,
+                            IndexFormat = $"TwilightSparkle-{DateTime.UtcNow:yyyy-MM}"
+                        })
+                        .Enrich.WithProperty("Environment", env.EnvironmentName)
+                        .ReadFrom.Configuration(hostingContext.Configuration)
+                        .CreateLogger();
                 })
                 .ConfigureLogging((hostContext, builder) =>
                 {
@@ -31,6 +47,7 @@ namespace TwilightSparkle.PapersPlease.Api
                     builder.AddConfiguration(hostContext.Configuration.GetSection("Logging"));
                     builder.AddConsole();
                 })
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
     }
 }

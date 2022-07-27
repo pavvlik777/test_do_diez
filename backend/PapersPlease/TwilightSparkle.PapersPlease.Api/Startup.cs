@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Elastic.Apm.AspNetCore;
+using Elastic.Apm.AspNetCore.DiagnosticListener;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TwilightSparkle.PapersPlease.Api.HealthChecks;
@@ -41,6 +43,8 @@ namespace TwilightSparkle.PapersPlease.Api
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseElasticApm(_configuration, new AspNetCoreDiagnosticSubscriber());
+
             app.UseCors();
 
             app.UseMiddleware<ErrorLoggerMiddleware>();
